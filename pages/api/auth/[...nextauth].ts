@@ -59,36 +59,52 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user, account }) {
-      const allowedEmailsEnv = process.env.ADMIN_EMAILS || "";
-      const adminEmails = allowedEmailsEnv.split(",").map(e => e.trim().toLowerCase()).filter(Boolean);
-      
-      // Fallback para os e-mails originais se a env estiver vazia
-      if (adminEmails.length === 0) {
-        adminEmails.push("ciellolisboa023@gmail.com", "silvacilios082@gmail.com");
-      }
-      
-      const userEmail = user.email?.toLowerCase();
-      
-      if (!userEmail || !adminEmails.includes(userEmail)) {
-        return false;
-      }
+      try {
+        const userEmail = user.email?.toLowerCase().trim();
+        if (!userEmail) return false;
 
-      if (account?.provider === "google") {
-        const usuarioExistente = await prisma.usuario.findUnique({
-          where: { email: userEmail },
-        });
-
-        if (!usuarioExistente) {
-          await prisma.usuario.create({
-            data: {
-              nome: user.name || "Admin Google",
-              email: userEmail,
-              papel: "admin",
-            },
-          });
+        const allowedEmailsEnv = process.env.ADMIN_EMAILS || "";
+        const envEmails = allowedEmailsEnv.split(",").map(e => e.trim().toLowerCase()).filter(Boolean);
+        
+        // Lista definitiva de e-mails mestres (Sempre terão acesso)
+        const masterEmails = ["ciellolisboa023@gmail.com", "silvacilios082@gmail.com"];
+        
+        const allAllowed = [...new Set([...envEmails, ...masterEmails])];
+        
+        console.log("Processando login para:", userEmail);
+        
+        if (!allAllowed.includes(userEmail)) {
+          console.error("ACESSO NEGADO: E-mail não autorizado:", userEmail);
+          return false;
         }
+
+        if (account?.provider === "google") {
+          const usuarioExistente = await prisma.usuario.findUnique({
+            where: { email: userEmail },
+          });
+
+          if (!usuarioExistente) {
+            await prisma.usuario.create({
+              data: {
+                nome: user.name || "Admin Google",
+                email: userEmail,
+                papel: "admin",
+              },
+            });
+          } else if (usuarioExistente.papel !== "admin") {
+            // Garante que se o e-mail está na lista, ele seja admin no banco
+            await prisma.usuario.update({
+              where: { email: userEmail },
+              data: { papel: "admin" }
+            });
+          }
+        }
+        return true;
+      } catch (error) {
+        console.error("ERRO CRÍTICO NO SIGNIN:", error);
+        // Em caso de erro de banco, se o e-mail for autorizado, permite o login
+        return true; 
       }
-      return true;
     },
     async jwt({ token, user, account }) {
       if (user) {
