@@ -59,7 +59,13 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user, account }) {
-      const adminEmails = ["ciellolisboa023@gmail.com", "silvacilios082@gmail.com"];
+      const allowedEmailsEnv = process.env.ADMIN_EMAILS || "";
+      const adminEmails = allowedEmailsEnv.split(",").map(e => e.trim()).filter(Boolean);
+      
+      // Fallback para os e-mails originais se a env estiver vazia
+      if (adminEmails.length === 0) {
+        adminEmails.push("ciellolisboa023@gmail.com", "silvacilios082@gmail.com");
+      }
       
       if (!user.email || !adminEmails.includes(user.email)) {
         return false;
