@@ -465,17 +465,27 @@ function GaleriaDinamica() {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await getServerSession(context.req, context.res, authOptions);
+  try {
+    const session = await getServerSession(context.req, context.res, authOptions);
 
-  // Busca serviços diretamente do banco para evitar delay de fetch no client
-  const servicos = await prisma.servico.findMany({
-    where: { ativo: true }
-  });
+    // Busca serviços diretamente do banco para evitar delay de fetch no client
+    const servicos = await prisma.servico.findMany({
+      where: { ativo: true }
+    });
 
-  return {
-    props: {
-      session: session ? JSON.parse(JSON.stringify(session)) : null,
-      servicosIniciais: JSON.parse(JSON.stringify(servicos)),
-    },
-  };
+    return {
+      props: {
+        session: session ? JSON.parse(JSON.stringify(session)) : null,
+        servicosIniciais: JSON.parse(JSON.stringify(servicos)),
+      },
+    };
+  } catch (error) {
+    console.error("Erro no SSR:", error);
+    return {
+      props: {
+        session: null,
+        servicosIniciais: [],
+      },
+    };
+  }
 };
