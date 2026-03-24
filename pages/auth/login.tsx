@@ -6,13 +6,13 @@ import { useRouter } from "next/router";
 
 export default function Login() {
   const router = useRouter();
-  const { status } = useSession();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
-    if (status === "authenticated") {
-      router.push("/admin");
+    if (status === "authenticated" && session) {
+      router.replace("/admin");
     }
-  }, [status, router]);
+  }, [status, session, router]);
 
   if (status === "loading") {
     return (
