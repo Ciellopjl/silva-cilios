@@ -123,29 +123,34 @@ export default function Clientes({ clientes }: ClientesProps) {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await getServerSession(context.req, context.res, authOptions);
-  if (!session) return { redirect: { destination: "/auth/login", permanent: false } };
+  try {
+    const session = await getServerSession(context.req, context.res, authOptions);
+    if (!session) return { redirect: { destination: "/auth/login", permanent: false } };
 
-  const agendamentos = await prisma.agendamento.findMany({
-    orderBy: { dataHora: "desc" },
-    select: { nomeCliente: true, dataHora: true },
-  });
+    const agendamentos = await prisma.agendamento.findMany({
+      orderBy: { dataHora: "desc" },
+      select: { nomeCliente: true, dataHora: true },
+    });
 
-  // Agrupa por nomeCliente
-  const mapaClientes: Record<string, { total: number; ultimaVisita: string }> = {};
-  for (const ag of agendamentos) {
-    if (!mapaClientes[ag.nomeCliente]) {
-      mapaClientes[ag.nomeCliente] = { total: 0, ultimaVisita: ag.dataHora.toISOString() };
+    // Agrupa por nomeCliente
+    const mapaClientes: Record<string, { total: number; ultimaVisita: string }> = {};
+    for (const ag of agendamentos) {
+      if (!mapaClientes[ag.nomeCliente]) {
+        mapaClientes[ag.nomeCliente] = { total: 0, ultimaVisita: ag.dataHora.toISOString() };
+      }
+      mapaClientes[ag.nomeCliente].total++;
+      if (ag.dataHora.toISOString() > mapaClientes[ag.nomeCliente].ultimaVisita) {
+        mapaClientes[ag.nomeCliente].ultimaVisita = ag.dataHora.toISOString();
+      }
     }
-    mapaClientes[ag.nomeCliente].total++;
-    if (ag.dataHora.toISOString() > mapaClientes[ag.nomeCliente].ultimaVisita) {
-      mapaClientes[ag.nomeCliente].ultimaVisita = ag.dataHora.toISOString();
-    }
+
+    const clientes = Object.entries(mapaClientes)
+      .map(([nomeCliente, dados]) => ({ nomeCliente, ...dados }))
+      .sort((a, b) => b.total - a.total);
+
+    return { props: { clientes } };
+  } catch (error) {
+    console.error("Erro SSR Clientes:", error);
+    return { props: { clientes: [] } };
   }
-
-  const clientes = Object.entries(mapaClientes)
-    .map(([nomeCliente, dados]) => ({ nomeCliente, ...dados }))
-    .sort((a, b) => b.total - a.total);
-
-  return { props: { clientes } };
 };

@@ -150,38 +150,50 @@ export default function Dashboard({
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await getServerSession(context.req, context.res, authOptions);
+  try {
+    const session = await getServerSession(context.req, context.res, authOptions);
 
-  if (!session) {
-    return { redirect: { destination: "/auth/login", permanent: false } };
+    if (!session) {
+      return { redirect: { destination: "/auth/login", permanent: false } };
+    }
+
+    const agora = new Date();
+    const inicioDia = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate());
+    const fimDia = new Date(inicioDia.getTime() + 24 * 60 * 60 * 1000);
+
+    const [totalAgendamentos, agendamentosHojeLista, totalClientesAgregado, proximosAgendamentos] =
+      await Promise.all([
+        prisma.agendamento.count(),
+        prisma.agendamento.count({ where: { dataHora: { gte: inicioDia, lt: fimDia } } }),
+        prisma.agendamento.groupBy({ by: ["nomeCliente"], _count: true }),
+        prisma.agendamento.findMany({
+          where: { dataHora: { gte: agora } },
+          orderBy: { dataHora: "asc" },
+          take: 5,
+        }),
+      ]);
+
+    return {
+      props: {
+        totalAgendamentos,
+        agendamentosHoje: agendamentosHojeLista,
+        totalClientes: totalClientesAgregado.length,
+        proximosAgendamentos: proximosAgendamentos.map((ag) => ({
+          ...ag,
+          dataHora: ag.dataHora.toISOString(),
+          criadoEm: ag.criadoEm.toISOString(),
+        })),
+      },
+    };
+  } catch (error) {
+    console.error("Erro SSR Dashboard:", error);
+    return {
+      props: {
+        totalAgendamentos: 0,
+        agendamentosHoje: 0,
+        totalClientes: 0,
+        proximosAgendamentos: [],
+      },
+    };
   }
-
-  const agora = new Date();
-  const inicioDia = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate());
-  const fimDia = new Date(inicioDia.getTime() + 24 * 60 * 60 * 1000);
-
-  const [totalAgendamentos, agendamentosHojeLista, totalClientesAgregado, proximosAgendamentos] =
-    await Promise.all([
-      prisma.agendamento.count(),
-      prisma.agendamento.count({ where: { dataHora: { gte: inicioDia, lt: fimDia } } }),
-      prisma.agendamento.groupBy({ by: ["nomeCliente"], _count: true }),
-      prisma.agendamento.findMany({
-        where: { dataHora: { gte: agora } },
-        orderBy: { dataHora: "asc" },
-        take: 5,
-      }),
-    ]);
-
-  return {
-    props: {
-      totalAgendamentos,
-      agendamentosHoje: agendamentosHojeLista,
-      totalClientes: totalClientesAgregado.length,
-      proximosAgendamentos: proximosAgendamentos.map((ag) => ({
-        ...ag,
-        dataHora: ag.dataHora.toISOString(),
-        criadoEm: ag.criadoEm.toISOString(),
-      })),
-    },
-  };
 };
