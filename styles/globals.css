@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --cor-dourado: #C9A84C;
+  --cor-dourado-claro: #DFC27A;
+  --cor-dourado-escuro: #A07830;
+  --cor-creme: #FDF6EC;
+  --cor-creme-escuro: #F5E8D0;
+  --cor-lavanda: #B8B5D4;
+  --cor-lavanda-claro: #D5D3E8;
+  --cor-marrom: #3D2B1F;
+  --cor-marrom-claro: #6B4C3B;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--cor-creme);
+  color: var(--cor-marrom);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Cormorant Garamond', serif;
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--cor-creme);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--cor-dourado-claro);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--cor-dourado);
+}
+
+@layer components {
+  .btn-dourado {
+    @apply bg-dourado text-white font-bold py-4 px-8 rounded-2xl transition-all duration-500 hover:bg-dourado-escuro active:scale-95 shadow-dourado hover:shadow-dourado-lg focus:outline-none flex items-center justify-center gap-3 tracking-wide uppercase text-sm;
+    background: linear-gradient(135deg, #DFC27A 0%, #C9A84C 50%, #A07830 100%);
+    background-size: 200% auto;
+  }
+  .btn-dourado:hover {
+    background-position: right center;
+  }
+
+  .btn-outline-dourado {
+    @apply border-2 border-dourado text-dourado font-semibold py-3 px-6 rounded-lg transition-all duration-300 hover:bg-dourado hover:text-white active:scale-95 focus:outline-none focus:ring-2 focus:ring-dourado focus:ring-offset-2;
+  }
+
+  .card-elegante {
+    @apply bg-white rounded-2xl shadow-elegante border border-creme-escuro p-6;
+  }
+
+  .input-elegante {
+    @apply w-full border border-creme-escuro bg-white rounded-lg px-4 py-3 text-marrom placeholder-marrom-claro focus:outline-none focus:ring-2 focus:ring-dourado focus:border-transparent transition-all duration-200;
+  }
+
+  .label-elegante {
+    @apply block text-sm font-semibold text-marrom-claro mb-1;
+  }
+
+  .heading-silva {
+    @apply font-cormorant text-4xl md:text-6xl font-bold text-marrom leading-tight tracking-tight;
+  }
+
+  .text-premium-italic {
+    @apply italic font-medium relative inline-block;
+  }
+
+  .text-premium-italic::after {
+    content: "";
+    @apply absolute -bottom-2 left-0 w-full h-1 bg-dourado/20 rounded-full;
+  }
+
+  .badge-status {
+    @apply px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide;
+  }
+
+  .badge-pendente {
+    @apply badge-status bg-amber-100 text-amber-800;
+  }
+
+  .badge-confirmado {
+    @apply badge-status bg-green-100 text-green-800;
+  }
+
+  .badge-cancelado {
+    @apply badge-status bg-red-100 text-red-800;
+  }
+
+  .badge-concluido {
+    @apply badge-status bg-lavanda-claro text-lavanda-escuro;
+  }
+
+  .sidebar-link {
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl text-creme/80 hover:bg-white/10 hover:text-white transition-all duration-200 font-medium;
+  }
+
+  .sidebar-link-ativo {
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl bg-white/20 text-white border border-white/20 font-medium;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

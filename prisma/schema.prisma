@@ -1,0 +1,61 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Usuario {
+  id           String        @id @default(cuid())
+  nome         String
+  email        String        @unique
+  senha        String?
+  papel        String        @default("usuario") // usuario/admin
+  criadoEm    DateTime      @default(now())
+  agendamentos Agendamento[]
+}
+
+model Agendamento {
+  id          String   @id @default(cuid())
+  nomeCliente String
+  whatsapp    String
+  servico     String
+  dataHora    DateTime
+  observacoes String?
+  local       String?  // 'helena' ou 'cliente'
+  endereco    String?
+  status      String   @default("pendente") // pendente/confirmado/cancelado/concluido
+  usuario     Usuario? @relation(fields: [usuarioId], references: [id])
+  usuarioId   String?
+  criadoEm   DateTime @default(now())
+}
+
+model Servico {
+  id        String   @id @default(cuid())
+  nome      String
+  descricao String?
+  preco     Float
+  duracaoMin Int     @default(60)
+  fotoUrl   String?
+  ativo     Boolean  @default(true)
+  criadoEm DateTime @default(now())
+}
+
+model Profissional {
+  id            String   @id @default(cuid())
+  nome          String
+  especialidade String?
+  fotoUrl       String?
+  ativo         Boolean  @default(true)
+  criadoEm      DateTime @default(now())
+}
+
+model TrabalhoRealizado {
+  id        String   @id @default(cuid())
+  titulo    String?
+  fotoUrl   String
+  ativo     Boolean  @default(true)
+  criadoEm  DateTime @default(now())
+}

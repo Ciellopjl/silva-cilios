@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Silva Cílios — Sistema de Agendamento Premium
 
-## Getting Started
+Sistema completo para gestão de atendimentos, catálogo de serviços e portfólio, desenvolvido com foco em alta performance e experiência de luxo para o usuário final e eficiência administrativa.
 
-First, run the development server:
+## 🚀 Tecnologias Utilizadas
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Core & Framework
+- **Next.js (v16.2)**: Framework React para renderização híbrida (SSR/SSG), garantindo SEO otimizado e carregamento instantâneo.
+- **TypeScript**: Linguagem base para garantir robustez, tipagem estática e manutenção segura do código.
+- **React (v19)**: Biblioteca principal para construção da interface reativa e componentes modulares.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Autenticação & Segurança
+- **NextAuth.js**: Solução de autenticação completa com suporte a login via Google e persistência de sessão por 30 dias.
+- **Bcrypt.js**: Criptografia de senhas para segurança de dados sensíveis.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Banco de Dados & Gestão
+- **Prisma ORM**: ORM moderno para interação segura e performática com o banco de dados.
+- **SQLite**: Banco de dados relacional leve e eficiente para armazenamento local de agendamentos e registros.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Estilização & UI/UX
+- **Tailwind CSS (v4)**: Framework CSS utilitário para design responsivo, moderno e de fácil manutenção.
+- **Framer Motion**: Biblioteca de animações fluidas para transições de menus e modais sem engasgos.
+- **Lucide React**: Biblioteca de ícones vetoriais padronizados para uma interface limpa e profissional.
+- **Cormorant Garamond & Inter**: Tipografia selecionada para transmitir elegância e legibilidade.
 
-## Learn More
+## 🛠️ Funcionalidades Principais
 
-To learn more about Next.js, take a look at the following resources:
+### Para o Cliente (Site Principal)
+- **Agendamento Inteligente**: Fluxo passo a passo para seleção de serviço, profissional e horário.
+- **Validação de Horários**: Bloqueio automático de slots ocupados e horários fora do expediente (foco no período vespertino).
+- **Confirmação via WhatsApp**: Geração automática de mensagem estruturada com código de agendamento para contato direto.
+- **Galeria de Trabalhos**: Portfólio dinâmico para visualização das técnicas realizadas.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Para a Administração (Painel Admin)
+- **Dashboard em Tempo Real**: Resumo de agendamentos diários, totais e estatísticas de clientes.
+- **Gestão de Agendamentos**: Visualização em tabela (Desktop) ou Cards (Mobile) com alteração de status imediata.
+- **Catálogo de Serviços**: CRUD completo para adicionar, editar ou remover serviços e preços.
+- **Gestão de Equipe & Galeria**: Upload de imagens e controle de profissionais especialistas.
+- **Totalmente Mobile-First**: Painel administrativo otimizado para gestão rápida diretamente do celular.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📈 Otimizações Sênior
+- **SSR (Server-Side Rendering)**: Dados críticos buscados no servidor para eliminar delays de carregamento.
+- **LCP Optimization**: Prioridade de renderização em imagens principais e recursos de "above-the-fold".
+- **Persistência Reforçada**: Configuração de Cookies e JWT para evitar logins repetitivos.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+Desenvolvido por **[ajucode](https://www.ajucode.com.br/)**
