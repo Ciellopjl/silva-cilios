@@ -6,8 +6,7 @@
     "dev": "next dev",
     "build": "npx prisma generate && npx prisma db push && npx prisma db seed && next build",
     "start": "next start",
-    "lint": "eslint",
-    "postinstall": "npx prisma generate"
+    "lint": "eslint"
   },
   "dependencies": {
     "@prisma/client": "6.19.2",
