@@ -79,14 +79,14 @@ export const authOptions: NextAuthOptions = {
 
       if (account?.provider === "google") {
         const usuarioExistente = await prisma.usuario.findUnique({
-          where: { email: user.email },
+          where: { email: userEmail },
         });
 
         if (!usuarioExistente) {
           await prisma.usuario.create({
             data: {
               nome: user.name || "Admin Google",
-              email: user.email,
+              email: userEmail,
               papel: "admin",
             },
           });
@@ -97,9 +97,9 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user, account }) {
       if (user) {
         // Se for login via Google, precisamos buscar o papel no banco se o usuário acabou de logar
-        if (account?.provider === "google") {
+        if (account?.provider === "google" && user.email) {
            const dbUser = await prisma.usuario.findUnique({
-             where: { email: user.email! }
+             where: { email: user.email.toLowerCase() }
            });
            token.id = dbUser?.id || user.id;
            token.papel = dbUser?.papel || "usuario";
