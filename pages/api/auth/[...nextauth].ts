@@ -69,11 +69,7 @@ export const authOptions: NextAuthOptions = {
       
       const userEmail = user.email?.toLowerCase();
       
-      console.log("Tentativa de login:", userEmail);
-      console.log("E-mails permitidos:", adminEmails);
-
       if (!userEmail || !adminEmails.includes(userEmail)) {
-        console.log("Acesso negado para:", userEmail);
         return false;
       }
 
