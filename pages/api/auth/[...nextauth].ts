@@ -45,18 +45,6 @@ export const authOptions: NextAuthOptions = {
   jwt: {
     maxAge: 3650 * 24 * 60 * 60, // 10 anos
   },
-  cookies: {
-    sessionToken: {
-      name: `next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 3650 * 24 * 60 * 60, // 10 anos
-      },
-    },
-  },
   callbacks: {
     async signIn({ user, account }) {
       try {
@@ -71,10 +59,7 @@ export const authOptions: NextAuthOptions = {
         
         const allAllowed = [...new Set([...envEmails, ...masterEmails])];
         
-        console.log("Processando login para:", userEmail);
-        
         if (!allAllowed.includes(userEmail)) {
-          console.error("ACESSO NEGADO: E-mail não autorizado:", userEmail);
           return false;
         }
 
@@ -92,7 +77,6 @@ export const authOptions: NextAuthOptions = {
               },
             });
           } else if (usuarioExistente.papel !== "admin") {
-            // Garante que se o e-mail está na lista, ele seja admin no banco
             await prisma.usuario.update({
               where: { email: userEmail },
               data: { papel: "admin" }
@@ -101,24 +85,25 @@ export const authOptions: NextAuthOptions = {
         }
         return true;
       } catch (error) {
-        console.error("ERRO CRÍTICO NO SIGNIN:", error);
-        // Em caso de erro de banco, se o e-mail for autorizado, permite o login
         return true; 
       }
     },
     async jwt({ token, user, account }) {
-      if (user) {
-        // Se for login via Google, precisamos buscar o papel no banco se o usuário acabou de logar
-        if (account?.provider === "google" && user.email) {
-           const dbUser = await prisma.usuario.findUnique({
-             where: { email: user.email.toLowerCase() }
-           });
-           token.id = dbUser?.id || user.id;
-           token.papel = dbUser?.papel || "usuario";
-        } else {
-          token.id = user.id;
-          token.papel = (user as any).papel;
+      try {
+        if (user) {
+          if (account?.provider === "google" && user.email) {
+             const dbUser = await prisma.usuario.findUnique({
+               where: { email: user.email.toLowerCase() }
+             });
+             token.id = dbUser?.id || user.id;
+             token.papel = dbUser?.papel || "admin"; // Força admin se logou
+          } else {
+            token.id = user.id;
+            token.papel = (user as any).papel || "admin";
+          }
         }
+      } catch (e) {
+        console.error("Erro no callback JWT:", e);
       }
       return token;
     },

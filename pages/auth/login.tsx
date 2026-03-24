@@ -10,7 +10,11 @@ export default function Login() {
 
   useEffect(() => {
     if (status === "authenticated" && session) {
-      router.replace("/admin");
+      // Pequeno delay para garantir que o cookie foi gravado pelo navegador
+      const timer = setTimeout(() => {
+        router.replace("/admin");
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [status, session, router]);
 
