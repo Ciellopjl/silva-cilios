@@ -60,14 +60,20 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account }) {
       const allowedEmailsEnv = process.env.ADMIN_EMAILS || "";
-      const adminEmails = allowedEmailsEnv.split(",").map(e => e.trim()).filter(Boolean);
+      const adminEmails = allowedEmailsEnv.split(",").map(e => e.trim().toLowerCase()).filter(Boolean);
       
       // Fallback para os e-mails originais se a env estiver vazia
       if (adminEmails.length === 0) {
         adminEmails.push("ciellolisboa023@gmail.com", "silvacilios082@gmail.com");
       }
       
-      if (!user.email || !adminEmails.includes(user.email)) {
+      const userEmail = user.email?.toLowerCase();
+      
+      console.log("Tentativa de login:", userEmail);
+      console.log("E-mails permitidos:", adminEmails);
+
+      if (!userEmail || !adminEmails.includes(userEmail)) {
+        console.log("Acesso negado para:", userEmail);
         return false;
       }
 
