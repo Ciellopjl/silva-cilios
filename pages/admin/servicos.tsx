@@ -78,10 +78,16 @@ export default function AdminServicos() {
   }, []);
 
   const fetchServicos = async () => {
-    const res = await fetch("/api/admin/servicos");
-    const data = await res.json();
-    setServicos(data);
-    setLoading(false);
+    try {
+      const res = await fetch("/api/admin/servicos");
+      if (!res.ok) throw new Error("Erro ao carregar serviços");
+      const data = await res.json();
+      setServicos(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Erro ao buscar serviços:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSalvar = async (id?: string) => {
@@ -246,8 +252,18 @@ export default function AdminServicos() {
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
-          {servicos.map((s) => (
-            <div key={s.id} className="bg-white rounded-[2.5rem] overflow-hidden shadow-sm border border-creme-escuro hover:shadow-xl transition-all flex flex-col group">
+          {loading ? (
+            [1, 2, 3].map((i) => (
+              <div key={i} className="bg-white rounded-[2.5rem] h-96 animate-pulse border border-creme-escuro" />
+            ))
+          ) : servicos.length === 0 ? (
+            <div className="col-span-full py-20 text-center border-2 border-dashed border-creme-escuro rounded-[3rem]">
+               <Sparkle className="w-12 h-12 text-creme-escuro mx-auto mb-4 opacity-20" />
+               <p className="text-marrom-claro">Nenhum serviço cadastrado.</p>
+            </div>
+          ) : (
+            servicos.map((s) => (
+              <div key={s.id} className="bg-white rounded-[2.5rem] overflow-hidden shadow-sm border border-creme-escuro hover:shadow-xl transition-all flex flex-col group">
               {editando === s.id ? (
                 <div className="p-8 space-y-5 bg-creme/20">
                   <div className="relative aspect-video rounded-3xl overflow-hidden border-2 border-dashed border-creme-escuro bg-white group/edit">
@@ -356,7 +372,7 @@ export default function AdminServicos() {
                       <div className="flex flex-col">
                         <span className="text-[9px] text-marrom-claro font-black uppercase tracking-widest mb-1">Valor Unitário</span>
                         <p className="text-marrom font-bold text-2xl font-cormorant">
-                          <span className="text-sm font-sans mr-1">R$</span>{s.preco.toFixed(2)}
+                          <span className="text-sm font-sans mr-1">R$</span>{typeof s.preco === 'number' ? s.preco.toFixed(2) : '0.00'}
                         </p>
                       </div>
                       <button 
@@ -373,8 +389,9 @@ export default function AdminServicos() {
                 </>
               )}
             </div>
-          ))}
-        </div>
+          ))
+        )}
+      </div>
       </div>
 
       {/* Modal Seletor de Galeria */}
