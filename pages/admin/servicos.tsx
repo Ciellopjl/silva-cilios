@@ -76,7 +76,7 @@ export default function AdminServicos() {
     try {
       const res = await fetch("/api/admin/galeria");
       const data = await res.json();
-      setFotosGaleria(data);
+      setFotosGaleria(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Erro ao buscar galeria:", error);
     } finally {
