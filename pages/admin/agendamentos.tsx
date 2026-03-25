@@ -50,9 +50,11 @@ export default function Agendamentos() {
     setCarregando(true);
     try {
       const res = await fetch("/api/agendamentos");
+      if (!res.ok) throw new Error("Erro ao carregar agendamentos");
       const dados = await res.json();
-      setAgendamentos(dados);
-    } catch {
+      setAgendamentos(Array.isArray(dados) ? dados : []);
+    } catch (error) {
+      console.error("Erro ao buscar agendamentos:", error);
       setMensagem("Erro ao carregar agendamentos.");
     } finally {
       setCarregando(false);
