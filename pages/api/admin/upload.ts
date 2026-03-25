@@ -2,8 +2,14 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 import formidable from "formidable";
-import fs from "fs";
-import path from "path";
+import { v2 as cloudinary } from "cloudinary";
+
+// Configuração do Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 export const config = {
   api: {
@@ -23,23 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(405).json({ message: "Método não permitido" });
     }
 
-    // Alerta para ambiente serverless (Vercel)
-    if (process.env.VERCEL) {
-      console.warn("ALERTA: Upload local detectado em ambiente Vercel. Arquivos serão temporários.");
-    }
-
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-
-    // Garantir que o diretório existe
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
-    const form = formidable({
-      uploadDir,
-      keepExtensions: true,
-      maxFileSize: 10 * 1024 * 1024, // 10MB
-    });
+    const form = formidable({});
 
     const data = await new Promise<{ fields: formidable.Fields; files: formidable.Files }>((resolve, reject) => {
       form.parse(req, (err, fields, files) => {
@@ -54,11 +44,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ message: "Nenhum arquivo enviado" });
     }
 
-    const fileName = file.newFilename;
-    const publicUrl = `/uploads/${fileName}`;
+    // Upload para o Cloudinary
+    const result = await cloudinary.uploader.upload(file.filepath, {
+      folder: "silva-cilios",
+    });
 
-    console.log("Upload realizado com sucesso:", publicUrl);
-    return res.status(200).json({ url: publicUrl });
+    console.log("Upload Cloudinary com sucesso:", result.secure_url);
+    return res.status(200).json({ url: result.secure_url });
   } catch (error) {
     console.error("Erro no handler de upload:", error);
     return res.status(500).json({ message: "Erro ao processar upload", error: String(error) });
