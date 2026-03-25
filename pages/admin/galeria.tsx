@@ -37,9 +37,15 @@ export default function AdminGaleria() {
       });
       
       if (!res.ok) {
-        const errorText = await res.text();
-        console.error("Erro no servidor de upload:", errorText);
-        setErro("Erro no upload. No ambiente de produção (Vercel), você precisa configurar um serviço de nuvem para fotos.");
+        let errorMessage = "Erro no servidor.";
+        try {
+          const errorData = await res.json();
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        } catch (e) {
+          errorMessage = await res.text();
+        }
+        console.error("Erro no servidor de upload:", errorMessage);
+        setErro(`Erro no upload: ${errorMessage}`);
         return;
       }
 

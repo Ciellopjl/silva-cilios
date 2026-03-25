@@ -29,23 +29,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(405).json({ message: "Método não permitido" });
     }
 
-    const form = formidable({});
+    const os = require('os');
+    const form = formidable({
+      uploadDir: os.tmpdir(),
+      keepExtensions: true,
+      maxFileSize: 10 * 1024 * 1024 // 10mb limite
+    });
 
     const data = await new Promise<{ fields: formidable.Fields; files: formidable.Files }>((resolve, reject) => {
       form.parse(req, (err, fields, files) => {
-        if (err) reject(err);
+        if (err) {
+          console.error("Erro no Formidable:", err);
+          return reject(err);
+        }
         resolve({ fields, files });
       });
     });
 
-    const file = Array.isArray(data.files.file) ? data.files.file[0] : data.files.file;
+    const fileArray = data.files.file;
+    const file = Array.isArray(fileArray) ? fileArray[0] : fileArray;
 
     if (!file) {
       return res.status(400).json({ message: "Nenhum arquivo enviado" });
     }
 
+    const filepath = file.filepath || (file as any).path;
+
     // Upload para o Cloudinary
-    const result = await cloudinary.uploader.upload(file.filepath, {
+    const result = await cloudinary.uploader.upload(filepath, {
       folder: "silva-cilios",
     });
 

@@ -40,6 +40,20 @@ export default function AdminEquipe() {
         method: "POST",
         body: dataForm,
       });
+      
+      if (!res.ok) {
+        let errorMessage = "Erro no servidor.";
+        try {
+          const errorData = await res.json();
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        } catch (e) {
+          errorMessage = await res.text();
+        }
+        console.error("Erro no servidor de upload:", errorMessage);
+        alert(`Erro no upload: ${errorMessage}`);
+        return;
+      }
+
       const data = await res.json();
       if (data.url) {
         setFormData({ ...formData, fotoUrl: data.url });

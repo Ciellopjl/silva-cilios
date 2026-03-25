@@ -45,9 +45,15 @@ export default function AdminServicos() {
       });
       
       if (!res.ok) {
-        const errorText = await res.text();
-        console.error("Erro no servidor de upload:", errorText);
-        alert("Erro no upload. No ambiente de produção (Vercel), você precisa configurar um serviço de nuvem para fotos.");
+        let errorMessage = "Erro no servidor.";
+        try {
+          const errorData = await res.json();
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        } catch (e) {
+          errorMessage = await res.text();
+        }
+        console.error("Erro no servidor de upload:", errorMessage);
+        alert(`Erro no upload: ${errorMessage}`);
         return;
       }
 
