@@ -52,10 +52,16 @@ export default function AdminEquipe() {
   };
 
   const fetchData = async () => {
-    const res = await fetch("/api/admin/profissionais");
-    const data = await res.json();
-    setProfissionais(data);
-    setLoading(false);
+    try {
+      const res = await fetch("/api/admin/profissionais");
+      if (!res.ok) throw new Error("Erro ao buscar profissionais");
+      const data = await res.json();
+      setProfissionais(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Erro ao buscar profissionais:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSalvar = async (id?: string) => {
@@ -181,8 +187,18 @@ export default function AdminEquipe() {
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
-          {profissionais.map((p) => (
-            <div key={p.id} className="bg-white p-6 md:p-10 rounded-3xl md:rounded-[3rem] shadow-sm border border-creme-escuro text-center relative group overflow-hidden hover:shadow-2xl transition-all duration-500">
+          {loading ? (
+            [1, 2, 3].map((i) => (
+              <div key={i} className="bg-white p-6 md:p-10 rounded-3xl md:rounded-[3rem] h-96 animate-pulse border border-creme-escuro" />
+            ))
+          ) : profissionais.length === 0 ? (
+             <div className="col-span-full py-20 text-center border-2 border-dashed border-creme-escuro rounded-[3rem]">
+                <User className="w-12 h-12 text-creme-escuro mx-auto mb-4 opacity-20" />
+                <p className="text-marrom-claro">Nenhum profissional cadastrado.</p>
+             </div>
+          ) : (
+            profissionais.map((p) => (
+              <div key={p.id} className="bg-white p-6 md:p-10 rounded-3xl md:rounded-[3rem] shadow-sm border border-creme-escuro text-center relative group overflow-hidden hover:shadow-2xl transition-all duration-500">
                <div className="absolute top-0 left-0 w-full h-24 md:h-32 bg-gradient-to-b from-creme to-transparent opacity-60 group-hover:from-dourado/10 transition-colors" />
                
                <div className="relative mb-6 md:mb-8 pt-2 md:pt-4">
@@ -242,14 +258,9 @@ export default function AdminEquipe() {
                  </div>
                )}
             </div>
-          ))}
-          {profissionais.length === 0 && !loading && (
-             <div className="col-span-full py-20 text-center border-2 border-dashed border-creme-escuro rounded-[3rem]">
-                <User className="w-12 h-12 text-creme-escuro mx-auto mb-4 opacity-20" />
-                <p className="text-marrom-claro">Nenhum profissional cadastrado.</p>
-             </div>
-          )}
-        </div>
+          ))
+        )}
+      </div>
       </div>
     </AdminLayout>
   );
