@@ -39,6 +39,7 @@ export default function AdminEquipe() {
       const res = await fetch("/api/admin/upload", {
         method: "POST",
         body: dataForm,
+        credentials: "same-origin"
       });
       
       if (!res.ok) {

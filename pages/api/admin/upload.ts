@@ -21,8 +21,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const session = await getServerSession(req, res, authOptions);
 
-    if (!session || (session.user as any).papel !== "admin") {
-      return res.status(401).json({ message: "Não autorizado" });
+    if (!session) {
+      return res.status(401).json({ message: "Não autorizado (Sessão inválida ou expirada)" });
+    }
+
+    if ((session.user as any).papel !== "admin") {
+      return res.status(401).json({ message: "Não autorizado (Permissão negada)" });
     }
 
     if (req.method !== "POST") {

@@ -34,6 +34,7 @@ export default function AdminGaleria() {
       const res = await fetch("/api/admin/upload", {
         method: "POST",
         body: dataForm,
+        credentials: "same-origin"
       });
       
       if (!res.ok) {

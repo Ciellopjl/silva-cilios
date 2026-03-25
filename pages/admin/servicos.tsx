@@ -42,6 +42,7 @@ export default function AdminServicos() {
       const res = await fetch("/api/admin/upload", {
         method: "POST",
         body: dataForm,
+        credentials: "same-origin"
       });
       
       if (!res.ok) {
