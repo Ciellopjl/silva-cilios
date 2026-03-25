@@ -37,8 +37,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     res.setHeader("Allow", ["GET", "POST"]);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Erro na API de serviços:", error);
-    return res.status(500).json({ message: "Erro interno no servidor" });
+    return res.status(500).json({ message: "Erro interno no servidor: " + String(error?.message || error) });
   }
 }
