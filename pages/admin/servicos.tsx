@@ -43,12 +43,21 @@ export default function AdminServicos() {
         method: "POST",
         body: dataForm,
       });
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("Erro no servidor de upload:", errorText);
+        alert("Erro no upload. No ambiente de produção (Vercel), você precisa configurar um serviço de nuvem para fotos.");
+        return;
+      }
+
       const data = await res.json();
       if (data.url) {
         setFormData((prev) => ({ ...prev, fotoUrl: data.url }));
       }
     } catch (error) {
       console.error("Erro no upload:", error);
+      alert("Falha ao enviar a imagem. Verifique sua conexão.");
     } finally {
       setUploading(false);
     }
@@ -168,12 +177,13 @@ export default function AdminServicos() {
                       <span className="text-[8px] md:text-[10px] text-marrom-claro uppercase font-bold tracking-wider">Upload ou Galeria</span>
                     </div>
                   )}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-marrom/40 transition-opacity flex flex-col items-center justify-center gap-2">
+                  <div className="absolute inset-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 bg-marrom/40 transition-opacity flex flex-col items-center justify-center gap-2">
                     <label className="bg-white text-marrom px-3 py-1.5 md:px-4 md:py-2 rounded-full text-[8px] md:text-[10px] font-bold cursor-pointer hover:bg-dourado hover:text-white transition-colors">
                       Fazer Upload
                       <input type="file" accept="image/*" onChange={handleUpload} className="hidden" />
                     </label>
                     <button 
+                      type="button"
                       onClick={handleAbrirGaleria}
                       className="bg-dourado text-white px-3 py-1.5 md:px-4 md:py-2 rounded-full text-[8px] md:text-[10px] font-bold hover:bg-dourado-escuro transition-colors"
                     >

@@ -37,8 +37,10 @@ export default function AdminGaleria() {
       });
       
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Falha no upload");
+        const errorText = await res.text();
+        console.error("Erro no servidor de upload:", errorText);
+        setErro("Erro no upload. No ambiente de produção (Vercel), você precisa configurar um serviço de nuvem para fotos.");
+        return;
       }
 
       const data = await res.json();
@@ -47,7 +49,7 @@ export default function AdminGaleria() {
       }
     } catch (error: any) {
       console.error("Erro no upload:", error);
-      setErro(error.message || "Erro ao subir imagem.");
+      setErro("Falha ao enviar a imagem. Verifique sua conexão.");
     } finally {
       setUploading(false);
     }
@@ -143,7 +145,7 @@ export default function AdminGaleria() {
               <div className="space-y-2 md:space-y-3">
                 <label className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-marrom-claro ml-2">A Imagem (Alta Qualidade)</label>
                 <div className="flex flex-col sm:flex-row items-center gap-4 md:gap-6 bg-creme/10 p-4 md:p-6 rounded-2xl md:rounded-[2rem] border border-dashed border-creme-escuro hover:border-dourado/50 transition-all group">
-                  <div className="w-full sm:w-40 h-48 sm:h-40 rounded-2xl md:rounded-[2rem] border-2 border-white overflow-hidden flex-shrink-0 shadow-lg relative group-hover:scale-105 transition-transform duration-500">
+                  <div className="w-full sm:w-40 h-48 sm:h-40 rounded-2xl md:rounded-[2rem] border-2 border-white overflow-hidden flex-shrink-0 shadow-lg relative transition-transform duration-500">
                     {formData.fotoUrl ? (
                       <img src={formData.fotoUrl} alt="Preview" className="w-full h-full object-cover" />
                     ) : (
@@ -152,6 +154,12 @@ export default function AdminGaleria() {
                         <span className="text-[8px] md:text-[9px] font-black uppercase tracking-tighter">Sem Preview</span>
                       </div>
                     )}
+                    <div className="absolute inset-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 bg-marrom/40 transition-opacity flex flex-col items-center justify-center gap-2">
+                      <label className="bg-white text-marrom px-3 py-1.5 md:px-4 md:py-2 rounded-full text-[8px] md:text-[10px] font-bold cursor-pointer hover:bg-dourado hover:text-white transition-colors">
+                        Fazer Upload
+                        <input type="file" accept="image/*" onChange={handleUpload} className="hidden" />
+                      </label>
+                    </div>
                     {uploading && (
                       <div className="absolute inset-0 bg-marrom/40 backdrop-blur-sm flex items-center justify-center">
                         <div className="w-6 h-6 md:w-8 md:h-8 border-4 border-white/30 border-t-white rounded-full animate-spin" />

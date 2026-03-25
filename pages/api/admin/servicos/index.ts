@@ -4,27 +4,41 @@ import { authOptions } from "../../auth/[...nextauth]";
 import { prisma } from "@/lib/prisma";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const session = await getServerSession(req, res, authOptions);
+  try {
+    const session = await getServerSession(req, res, authOptions);
 
-  if (!session || (session.user as any).papel !== "admin") {
-    return res.status(401).json({ message: "Não autorizado" });
+    if (!session || (session.user as any).papel !== "admin") {
+      return res.status(401).json({ message: "Não autorizado" });
+    }
+
+    if (req.method === "GET") {
+      const servicos = await prisma.servico.findMany({
+        orderBy: { criadoEm: "desc" },
+      });
+      return res.status(200).json(servicos || []);
+    }
+
+    if (req.method === "POST") {
+      const { nome, descricao, preco, duracaoMin, fotoUrl } = req.body;
+      
+      if (!nome) return res.status(400).json({ message: "Nome é obrigatório" });
+
+      const servico = await prisma.servico.create({
+        data: { 
+          nome, 
+          descricao: descricao || null, 
+          preco: Number(preco) || 0, 
+          duracaoMin: Number(duracaoMin) || 60, 
+          fotoUrl: fotoUrl || null 
+        },
+      });
+      return res.status(201).json(servico);
+    }
+
+    res.setHeader("Allow", ["GET", "POST"]);
+    return res.status(405).end(`Method ${req.method} Not Allowed`);
+  } catch (error) {
+    console.error("Erro na API de serviços:", error);
+    return res.status(500).json({ message: "Erro interno no servidor" });
   }
-
-  if (req.method === "GET") {
-    const servicos = await prisma.servico.findMany({
-      orderBy: { criadoEm: "desc" },
-    });
-    return res.status(200).json(servicos);
-  }
-
-  if (req.method === "POST") {
-    const { nome, descricao, preco, duracaoMin, fotoUrl } = req.body;
-    const servico = await prisma.servico.create({
-      data: { nome, descricao, preco: Number(preco), duracaoMin: Number(duracaoMin), fotoUrl } as any,
-    });
-    return res.status(201).json(servico);
-  }
-
-  res.setHeader("Allow", ["GET", "POST"]);
-  res.status(405).end(`Method ${req.method} Not Allowed`);
 }
