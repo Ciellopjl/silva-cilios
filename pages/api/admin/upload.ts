@@ -25,10 +25,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(401).json({ message: "Não autorizado (Sessão inválida ou expirada)" });
     }
 
-    if ((session.user as any).papel !== "admin") {
-      return res.status(401).json({ message: "Não autorizado (Permissão negada)" });
-    }
-
     if (req.method !== "POST") {
       return res.status(405).json({ message: "Método não permitido" });
     }
