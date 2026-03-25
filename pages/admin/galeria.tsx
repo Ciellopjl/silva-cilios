@@ -14,6 +14,7 @@ export default function AdminGaleria() {
   const [formData, setFormData] = useState({ titulo: "", fotoUrl: "" });
 
   const [uploading, setUploading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
 
   useEffect(() => {
@@ -55,10 +56,13 @@ export default function AdminGaleria() {
   const fetchData = async () => {
     try {
       const res = await fetch("/api/admin/galeria");
+      if (!res.ok) throw new Error("Erro ao carregar galeria");
       const data = await res.json();
-      setTrabalhos(data);
+      setTrabalhos(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Erro ao buscar galeria:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -200,31 +204,39 @@ export default function AdminGaleria() {
         )}
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-8">
-          {trabalhos.map((t) => (
-            <div key={t.id} className="group relative aspect-square rounded-[2rem] sm:rounded-[3rem] overflow-hidden shadow-sm border border-creme-escuro bg-white hover:shadow-2xl transition-all duration-500">
-              <img src={t.fotoUrl} alt={t.titulo} className="w-full h-full object-cover group-hover:scale-125 transition-transform duration-[1.5s] ease-out" />
-              <div className="absolute inset-0 bg-gradient-to-t from-marrom/90 via-marrom/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-6">
-                <p className="text-white text-[10px] font-black uppercase tracking-[0.2em] mb-4 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">{t.titulo || "Trabalho Silva Cílios"}</p>
-                <div className="flex justify-between items-center transform translate-y-4 group-hover:translate-y-0 transition-transform duration-700">
-                  <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/30" />
-                  <button
-                    onClick={() => handleExcluir(t.id)}
-                    className="bg-white/90 hover:bg-red-500 hover:text-white text-red-500 p-3 rounded-2xl backdrop-blur-md transition-all shadow-xl active:scale-90"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
+          {loading ? (
+            [1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="aspect-square rounded-[2rem] sm:rounded-[3rem] bg-white border border-creme-escuro animate-pulse" />
+            ))
+          ) : (
+            <>
+              {trabalhos.map((t) => (
+                <div key={t.id} className="group relative aspect-square rounded-[2rem] sm:rounded-[3rem] overflow-hidden shadow-sm border border-creme-escuro bg-white hover:shadow-2xl transition-all duration-500">
+                  <img src={t.fotoUrl} alt={t.titulo} className="w-full h-full object-cover group-hover:scale-125 transition-transform duration-[1.5s] ease-out" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-marrom/90 via-marrom/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-6">
+                    <p className="text-white text-[10px] font-black uppercase tracking-[0.2em] mb-4 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">{t.titulo || "Trabalho Silva Cílios"}</p>
+                    <div className="flex justify-between items-center transform translate-y-4 group-hover:translate-y-0 transition-transform duration-700">
+                      <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/30" />
+                      <button
+                        onClick={() => handleExcluir(t.id)}
+                        className="bg-white/90 hover:bg-red-500 hover:text-white text-red-500 p-3 rounded-2xl backdrop-blur-md transition-all shadow-xl active:scale-90"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          ))}
-          {trabalhos.length === 0 && !novo && (
-            <div className="col-span-full py-32 text-center border-4 border-dashed border-creme-escuro/30 rounded-[4rem] group hover:border-dourado/30 transition-colors">
-               <div className="w-24 h-24 bg-creme-escuro/20 rounded-full flex items-center justify-center mx-auto mb-8 group-hover:scale-110 transition-transform">
-                  <ImageIcon className="w-10 h-10 text-creme-escuro opacity-40" />
-               </div>
-               <p className="text-marrom-claro font-cormorant text-2xl font-bold">Inicie sua galeria de arte</p>
-               <p className="text-marrom-claro/60 text-xs font-black uppercase tracking-widest mt-2">Nenhuma obra prima catalogada ainda</p>
-            </div>
+              ))}
+              {trabalhos.length === 0 && !novo && (
+                <div className="col-span-full py-32 text-center border-4 border-dashed border-creme-escuro/30 rounded-[4rem] group hover:border-dourado/30 transition-colors">
+                   <div className="w-24 h-24 bg-creme-escuro/20 rounded-full flex items-center justify-center mx-auto mb-8 group-hover:scale-110 transition-transform">
+                      <ImageIcon className="w-10 h-10 text-creme-escuro opacity-40" />
+                   </div>
+                   <p className="text-marrom-claro font-cormorant text-2xl font-bold">Inicie sua galeria de arte</p>
+                   <p className="text-marrom-claro/60 text-xs font-black uppercase tracking-widest mt-2">Nenhuma obra prima catalogada ainda</p>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
