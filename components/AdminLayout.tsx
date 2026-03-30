@@ -47,7 +47,7 @@ export default function AdminLayout({ children, titulo }: AdminLayoutProps) {
   return (
     <>
       <Head>
-        <title>{titulo} — Silva Cílios</title>
+        <title>{`${titulo} — Silva Cílios`}</title>
       </Head>
 
       <div className="min-h-screen flex bg-creme relative overflow-x-hidden">
