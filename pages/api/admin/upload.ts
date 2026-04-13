@@ -36,34 +36,42 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       maxFileSize: 10 * 1024 * 1024 // 10mb limite
     });
 
-    const data = await new Promise<{ fields: formidable.Fields; files: formidable.Files }>((resolve, reject) => {
-      form.parse(req, (err, fields, files) => {
-        if (err) {
-          console.error("Erro no Formidable:", err);
-          return reject(err);
-        }
-        resolve({ fields, files });
-      });
-    });
+    console.log("Iniciando parse do formulário...");
+    const [fields, files] = await form.parse(req);
+    
+    console.log("Campos recebidos:", Object.keys(fields));
+    console.log("Arquivos recebidos:", Object.keys(files));
 
-    const fileArray = data.files.file;
+    const fileArray = files.file;
     const file = Array.isArray(fileArray) ? fileArray[0] : fileArray;
 
     if (!file) {
-      return res.status(400).json({ message: "Nenhum arquivo enviado" });
+      console.error("Erro: Nenhum arquivo encontrado no objeto files.");
+      return res.status(400).json({ message: "Nenhum arquivo enviado ou campo 'file' ausente." });
     }
 
     const filepath = file.filepath || (file as any).path;
+    console.log("Caminho do arquivo temporário:", filepath);
+
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY) {
+      console.error("ERRO CRÍTICO: Credenciais do Cloudinary não encontradas no .env");
+      return res.status(500).json({ message: "Erro de configuração no servidor (Cloudinary)" });
+    }
 
     // Upload para o Cloudinary
+    console.log("Enviando para Cloudinary...");
     const result = await cloudinary.uploader.upload(filepath, {
       folder: "silva-cilios",
     });
 
     console.log("Upload Cloudinary com sucesso:", result.secure_url);
     return res.status(200).json({ url: result.secure_url });
-  } catch (error) {
-    console.error("Erro no handler de upload:", error);
-    return res.status(500).json({ message: "Erro ao processar upload", error: String(error) });
+  } catch (error: any) {
+    console.error("ERRO NO HANDLER DE UPLOAD:", error);
+    return res.status(500).json({ 
+      message: "Erro ao processar upload", 
+      error: error.message || String(error),
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 }

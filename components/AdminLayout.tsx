@@ -141,11 +141,9 @@ export default function AdminLayout({ children, titulo }: AdminLayoutProps) {
             </button>
 
             {/* Desenvolvido por */}
-            <div className="mt-auto pt-6 border-t border-white/10 text-center flex flex-col items-center gap-2">
+            <div className="mt-auto pt-6 border-t border-white/10 text-center flex flex-col items-center gap-1">
               <p className="text-[8px] font-black uppercase tracking-[0.2em] text-creme/50">Desenvolvido por</p>
-              <a href="https://www.ajucode.com.br/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 group">
-                <img src="/logo ajucode.png" alt="ajucode" className="h-5 w-auto object-contain transition-transform group-hover:scale-105" />
-              </a>
+              <p className="text-[10px] font-bold text-dourado-claro tracking-widest uppercase">ciello dev 👨‍💻</p>
             </div>
           </div>
         </aside>

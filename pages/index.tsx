@@ -411,11 +411,9 @@ export default function Home({ servicosIniciais }: { servicosIniciais: any[] }) 
         </div>
         <div className="max-w-7xl mx-auto px-6 pt-10 border-t border-creme/10 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-[10px] tracking-widest uppercase font-medium opacity-60">© 2024 Silva Cílios — Todos os direitos reservados</p>
-          <div className="flex items-center gap-3">
-            <span className="text-[9px] uppercase tracking-widest font-bold opacity-40">Desenvolvido por</span>
-            <a href="https://www.ajucode.com.br/" target="_blank" rel="noopener noreferrer" className="group">
-              <img src="/logo ajucode.png" alt="ajucode" className="h-5 w-auto transition-transform group-hover:scale-105" />
-            </a>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] tracking-widest uppercase font-medium opacity-60">Desenvolvido por</span>
+            <span className="text-[10px] tracking-widest uppercase font-bold text-dourado opacity-80">ciello dev 👨‍💻</span>
           </div>
         </div>
       </footer>
