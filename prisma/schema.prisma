@@ -59,3 +59,12 @@ model TrabalhoRealizado {
   ativo     Boolean  @default(true)
   criadoEm  DateTime @default(now())
 }
+
+model HorarioFuncionamento {
+  id           String   @id @default(cuid())
+  diaSemana    Int      @unique // 0=Dom, 1=Seg, ..., 6=Sáb
+  abertura     String   // "09:00"
+  fechamento   String   // "18:00"
+  ativo        Boolean  @default(true)
+  atualizadoEm DateTime @updatedAt
+}

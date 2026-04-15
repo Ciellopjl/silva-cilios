@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import BookingStepper from "@/components/booking/BookingStepper";
-import { Sparkles, Calendar, Instagram, ArrowRight, CheckCircle2, X, Menu, LayoutDashboard } from "lucide-react";
+import { Sparkles, Calendar, Instagram, ArrowRight, CheckCircle2, X, Menu, LayoutDashboard, Clock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home({ servicosIniciais }: { servicosIniciais: any[] }) {
@@ -16,6 +16,52 @@ export default function Home({ servicosIniciais }: { servicosIniciais: any[] }) 
   const [loading, setLoading] = useState(!servicosIniciais);
   const [selectedServico, setSelectedServico] = useState<{ id: string; nome: string } | undefined>();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [horariosDb, setHorariosDb] = useState<any[]>([]);
+
+  // Buscar horários ao montar o componente
+  useEffect(() => {
+    fetch("/api/horarios")
+      .then(res => res.json())
+      .then(data => {
+         if (Array.isArray(data) && data.length > 0) {
+            setHorariosDb(data);
+         }
+      })
+      .catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    const checkOpen = () => {
+      const now = new Date();
+      const day = now.getDay(); // 0=Dom, 6=Sáb
+      const timeMin = now.getHours() * 60 + now.getMinutes();
+
+      if (horariosDb.length > 0) {
+         const horarioOje = horariosDb.find(h => h.diaSemana === day);
+         if (!horarioOje || !horarioOje.ativo) {
+            setIsOpen(false);
+         } else {
+            // Converte "09:00" pra minutos
+            const [aberturaH, aberturaM] = horarioOje.abertura.split(':').map(Number);
+            const [fechamentoH, fechamentoM] = horarioOje.fechamento.split(':').map(Number);
+            
+            const abMin = aberturaH * 60 + aberturaM;
+            const feMin = fechamentoH * 60 + fechamentoM;
+
+            setIsOpen(timeMin >= abMin && timeMin < feMin);
+         }
+      } else {
+        // Fallback default
+        if (day >= 1 && day <= 5) setIsOpen(timeMin >= 540 && timeMin < 1080);
+        else if (day === 6)        setIsOpen(timeMin >= 540 && timeMin < 840);
+        else                       setIsOpen(false);
+      }
+    };
+    checkOpen();
+    const interval = setInterval(checkOpen, 60_000);
+    return () => clearInterval(interval);
+  }, [horariosDb]);
 
   useEffect(() => {
     if (!servicosIniciais) {
@@ -44,7 +90,23 @@ export default function Home({ servicosIniciais }: { servicosIniciais: any[] }) 
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 md:py-4 flex justify-between items-center">
           <div className="flex items-center gap-2 md:gap-3">
             <img src="/logo.png" alt="Silva Cílios" className="h-10 md:h-16 w-auto object-contain rounded-full shadow-sm" />
-            <span className="font-cormorant text-xl md:text-3xl font-bold text-marrom tracking-tight leading-none bg-gradient-to-r from-marrom to-marrom-claro bg-clip-text">Silva Cílios</span>
+            <div className="flex flex-col justify-center">
+              <span className="font-cormorant text-xl md:text-3xl font-bold text-marrom tracking-tight leading-none bg-gradient-to-r from-marrom to-marrom-claro bg-clip-text">Silva Cílios</span>
+              <div
+                className={`mt-0.5 self-start flex items-center gap-1 px-2 py-0.5 rounded-full border text-[8px] font-black uppercase tracking-widest transition-all duration-500 ${
+                  isOpen
+                    ? "bg-green-50 border-green-200 text-green-700"
+                    : "bg-red-50 border-red-200 text-red-600"
+                }`}
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+                    isOpen ? "bg-green-500 animate-pulse" : "bg-red-500"
+                  }`}
+                />
+                {isOpen ? "Aberto" : "Fechado"}
+              </div>
+            </div>
           </div>
           <div className="flex items-center gap-3 md:gap-10">
              <div className="hidden md:flex items-center gap-6 text-[10px] uppercase tracking-widest font-bold text-marrom-claro">
@@ -413,7 +475,9 @@ export default function Home({ servicosIniciais }: { servicosIniciais: any[] }) 
           <p className="text-[10px] tracking-widest uppercase font-medium opacity-60">© 2024 Silva Cílios — Todos os direitos reservados</p>
           <div className="flex items-center gap-2">
             <span className="text-[10px] tracking-widest uppercase font-medium opacity-60">Desenvolvido por</span>
-            <span className="text-[10px] tracking-widest uppercase font-bold text-dourado opacity-80">ciello dev 👨‍💻</span>
+            <a href="https://ciello-dev.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-[10px] tracking-widest uppercase font-bold text-dourado opacity-80 hover:text-white transition-colors cursor-pointer">
+              ciello dev 👨‍💻
+            </a>
           </div>
         </div>
       </footer>

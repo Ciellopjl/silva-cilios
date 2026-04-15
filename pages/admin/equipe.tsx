@@ -79,6 +79,22 @@ export default function AdminEquipe() {
     }
   };
 
+  const handleExcluir = async (id: string, nome: string) => {
+    if (!confirm(`Tem certeza que deseja excluir "${nome}"? Esta ação não pode ser desfeita.`)) return;
+
+    try {
+      const res = await fetch(`/api/admin/profissionais/${id}`, { method: "DELETE" });
+      if (res.ok || res.status === 204) {
+        fetchData();
+      } else {
+        alert("Erro ao excluir profissional.");
+      }
+    } catch (error) {
+      console.error("Erro ao excluir:", error);
+      alert("Erro ao excluir profissional.");
+    }
+  };
+
   const handleSalvar = async (id?: string) => {
     const method = id ? "PUT" : "POST";
     const url = id ? `/api/admin/profissionais/${id}` : "/api/admin/profissionais";
@@ -264,10 +280,11 @@ export default function AdminEquipe() {
                         Perfil Detalhado
                       </button>
                       <button 
-                        className="p-3 md:p-4 bg-creme-escuro/10 rounded-xl md:rounded-2xl text-marrom hover:text-red-500 transition-colors"
-                        title="Inativar"
+                        onClick={() => handleExcluir(p.id, p.nome)}
+                        className="p-3 md:p-4 bg-creme-escuro/10 rounded-xl md:rounded-2xl text-marrom hover:text-red-500 hover:bg-red-50 transition-colors"
+                        title="Excluir profissional"
                       >
-                        <Trash2 className="w-4 h-4 md:w-5 md:h-5 opacity-40" />
+                        <Trash2 className="w-4 h-4 md:w-5 md:h-5 opacity-40 group-hover:opacity-100" />
                       </button>
                     </div>
                  </div>

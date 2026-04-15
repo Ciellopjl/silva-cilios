@@ -32,6 +32,7 @@ const navLinks = [
   { href: "/admin/servicos", label: "Serviços", icone: <Sparkle className="w-5 h-5" /> },
   { href: "/admin/equipe", label: "Equipe", icone: <User className="w-5 h-5" /> },
   { href: "/admin/galeria", label: "Galeria", icone: <Sparkles className="w-5 h-5" /> },
+  { href: "/admin/horarios", label: "Horários", icone: <Calendar className="w-5 h-5" /> },
 ];
 
 export default function AdminLayout({ children, titulo }: AdminLayoutProps) {
@@ -143,7 +144,9 @@ export default function AdminLayout({ children, titulo }: AdminLayoutProps) {
             {/* Desenvolvido por */}
             <div className="mt-auto pt-6 border-t border-white/10 text-center flex flex-col items-center gap-1">
               <p className="text-[8px] font-black uppercase tracking-[0.2em] text-creme/50">Desenvolvido por</p>
-              <p className="text-[10px] font-bold text-dourado-claro tracking-widest uppercase">ciello dev 👨‍💻</p>
+              <a href="https://ciello-dev.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold text-dourado-claro tracking-widest uppercase hover:text-white transition-colors cursor-pointer">
+                ciello dev 👨‍💻
+              </a>
             </div>
           </div>
         </aside>
